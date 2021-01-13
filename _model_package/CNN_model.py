@@ -57,7 +57,7 @@ class CNN_model():
         optimizers: 訓練方式(lr是learning rate)
         metrics: 評分標準
         """
-        model.compile(loss='mse', optimizer=SGD(lr=0.05), metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.05), metrics=['accuracy'])
         model.summary() #檢示神經網路的架構
         self.model = model
     
