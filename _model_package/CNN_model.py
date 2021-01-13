@@ -36,24 +36,20 @@ class CNN_model():
         另，CNN的技巧是愈後面的層數神經元愈多。
         做完CNN和Pooling層後，會拉平送回正常的NN
         """
-        model.add(Conv2D(32, (3,3), padding='same', input_shape=input_shape))
-        model.add(Activation('relu'))
+        model.add(Conv2D(32, (3,3), padding='same', input_shape=input_shape, activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         
-        model.add(Conv2D(64, (3,3), padding='same'))
-        model.add(Activation('relu'))
+        model.add(Conv2D(64, (3,3), padding='same', activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         
-        model.add(Conv2D(128, (3,3), padding='same'))
+        model.add(Conv2D(128, (3,3), padding='same', activation='relu'))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         
         model.add(Flatten())
-        model.add(Dense(200))
-        model.add(Activation('relu'))
-        
-        model.add(Dense(output_size))
-        model.add(Activation('softmax'))
+        model.add(Dense(200, activation='relu'))    
+        model.add(Dense(output_size, activation='softmax'))
+
         
         """
         組裝神經網路
@@ -93,8 +89,8 @@ if __name__=='__main__':
     plt.imshow(x_train[9487])
     print(y_train[9487])
     
-    x_train = x_train.reshape(60000,28,28,1)
-    x_test = x_test.reshape(10000,28,28,1)
+    x_train = x_train.reshape(60000,28,28,1)/255 #資料標準化映射至0~1之間，有助訓練
+    x_test = x_test.reshape(10000,28,28,1)/255
     y_train = np_utils.to_categorical(y_train,10) #one-hot encoding
     y_test = np_utils.to_categorical(y_test,10) #one-hot encoding
     
