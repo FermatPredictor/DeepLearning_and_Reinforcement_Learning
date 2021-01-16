@@ -8,7 +8,7 @@ from keras.utils import np_utils
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
-from tensorflow.keras.optimizers import SGD #stochastic gradient descent
+from tensorflow.keras.optimizers import Adam
 
 
 class CNN_model():
@@ -24,8 +24,6 @@ class CNN_model():
     與NN相比，CNN是圖形辨識的高手，
     注意input的維度是三維(ex: (28,28,1), (28,28,3))
     output用one-hot encoding呈現
-    
-    (目前發現這個架構會train失敗，待研究...)
     """
     
     def __init__(self, input_shape:tuple, output_size:int):
@@ -43,7 +41,6 @@ class CNN_model():
         model.add(MaxPooling2D(pool_size=(2,2)))
         
         model.add(Conv2D(128, (3,3), padding='same', activation='relu'))
-        model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         
         model.add(Flatten())
@@ -57,12 +54,12 @@ class CNN_model():
         optimizers: 訓練方式(lr是learning rate)
         metrics: 評分標準
         """
-        model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.05), metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=0.001), metrics=['accuracy'])
         model.summary() #檢示神經網路的架構
         self.model = model
     
 
-    def fit(self, x_train, y_train, batch_size=100, epochs=20):
+    def fit(self, x_train, y_train, batch_size=100, epochs=5):
         """
         訓練神經網路
         batch_size: 一次訓練幾筆資料(每幾筆資料調一次參數)
@@ -102,6 +99,6 @@ if __name__=='__main__':
     print('測試資料的loss', score[0])
     print('測試資料的正確率', score[1])
     
-    if score[1] > 0.95:
+    if score[1] > 0.98:
         model.save('./CNN_handwrite_model.h5')
 
