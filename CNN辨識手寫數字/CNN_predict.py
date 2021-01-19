@@ -4,11 +4,11 @@ from tensorflow.keras.models import load_model
 import glob,cv2
 import os
 
-def show_images_labels_predictions(images, labels, predictions,num=10):
+def show_images_labels_predictions(images, labels, predictions):
     plt.gcf().set_size_inches(12, 14)
-    num = min(num, 25) 
+    num = min(len(images), 30) 
     for i in range(num):
-        ax=plt.subplot(5,5, 1+i)
+        ax=plt.subplot(5,6, 1+i)
         #顯示黑白圖片
         ax.imshow(images[i], cmap='binary')
         
@@ -51,14 +51,14 @@ if __name__ == '__main__':
     
     # 讀測資
     path = './imagedata'
-    test_feature, test_label = load_test_data(path)
+    x_test, y_test = load_test_data(path)
     
     # reshape成CNN吃的格式，並標準化至0~1區間
-    test_feature_normalize = test_feature.reshape(test_feature.shape[0],28,28,1).astype('float32')/255
+    x_test_normalize = x_test.reshape(x_test.shape[0],28,28,1).astype('float32')/255
         
     #預測
-    predict = model.predict(test_feature_normalize)
+    predict = model.predict(x_test_normalize)
     prediction = np.argmax(predict, axis=-1)
     
     #顯示圖像、預測值、真實值 
-    show_images_labels_predictions(test_feature,test_label,prediction,len(test_feature))
+    show_images_labels_predictions(x_test,y_test,prediction)

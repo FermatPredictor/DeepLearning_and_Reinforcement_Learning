@@ -6,14 +6,14 @@ from tensorflow.keras.datasets import mnist #手寫數字資料集
 from keras.utils import np_utils
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation, Flatten
+from tensorflow.keras.layers import Dense, Activation, Flatten, Dropout
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.keras.optimizers import Adam
 
 
 class CNN_model():
     """
-    keras version: 2.2.4
+    keras version: 2.4.3
     tensorflow version: 2.4.0
     
     Use the command to see your vesion:
@@ -42,6 +42,7 @@ class CNN_model():
         
         model.add(Conv2D(128, (3,3), padding='same', activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
+        model.add(Dropout(0.2)) # Dropout層防止過度擬合，斷開比例:0.2
         
         model.add(Flatten())
         model.add(Dense(200, activation='relu'))    
@@ -99,6 +100,6 @@ if __name__=='__main__':
     print('測試資料的loss', score[0])
     print('測試資料的正確率', score[1])
     
-    if score[1] > 0.98:
-        model.save('./CNN_handwrite_model.h5')
+    if score[1] > 0.95:
+        model.save('./CNN_handwrite_model_3.h5')
 
