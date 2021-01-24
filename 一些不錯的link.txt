@@ -1,3 +1,4 @@
 ﻿https://bbs.cvmart.net/topics/1508 -让我们跑一个最简单的 GAN 网络吧(生成偽mnist數字集)
 https://www.bnext.com.tw/article/52618/recommand-to-programming-language-learner-python-google-colab -用online Colab跑GPU環境的tensorflow
 https://make.girls.moe/#/ - Gan生成二次元人物demo
+https://towardsdatascience.com/temporal-difference-learning-47b4a7205ca8 -td learning公式
