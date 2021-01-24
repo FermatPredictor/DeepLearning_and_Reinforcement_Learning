@@ -2,3 +2,4 @@
 https://www.bnext.com.tw/article/52618/recommand-to-programming-language-learner-python-google-colab -用online Colab跑GPU環境的tensorflow
 https://make.girls.moe/#/ - Gan生成二次元人物demo
 https://towardsdatascience.com/temporal-difference-learning-47b4a7205ca8 -td learning公式
+https://junmo1215.github.io/machine-learning/2017/11/27/practice-TDLearning-in-2584-fibonacci-2nd.html -td learning for 2584
