@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from random import randrange, choice
+from copy import deepcopy
 """
 ref: https://www.geeksforgeeks.org/2048-game-in-python/
 
@@ -7,12 +8,13 @@ ref: https://www.geeksforgeeks.org/2048-game-in-python/
 1. (觀念)https://junmo1215.github.io/machine-learning/2017/11/27/practice-TDLearning-in-2584-fibonacci-2nd.html
 2. (code)https://github.com/junmo1215/rl_games/blob/8809ae2a9eefb8e492e24658d28268c67f00281e/2584_C%2B%2B/agent.h
 """
-
+    
 class Game_2048():
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.mat =[[0] * self.width for i in range(self.height)]
+        self.episodes = [] #儲存遊戲記錄
     
     def start_game(self): 
         self.mat =[[0] * self.width for i in range(self.height)] 
@@ -101,10 +103,14 @@ class Game_2048():
             print(m)
         print('-'*10)
         
-    def gameloop(self):
+    def gameloop(self, ai_agent=None):
+        """
+        ai_agent(mat): ai做選擇的函數，input盤面mat，輸出要往上、下、左、右哪邊滑，輸入None時由人類玩家玩。
+        """
         self.start_game()
         self.show_board()
         while True:
+            before_state = deepcopy(self.mat)
             valid_move = self.get_valid_move(self.mat)
             print('目前合法棋步:', valid_move)
             if not valid_move:
@@ -114,8 +120,11 @@ class Game_2048():
                 print('You won.')
                 break
             
-            # taking the user input  for next step 
-            act = input("Press the command : ").strip().lower()
+            if callable(ai_agent):
+                act = ai_agent(self.mat)
+            else:
+                act = input("Press the command : ").strip().lower()
+            print(f"Take action '{act}'")
             move_func = {'w': self.move_up,
                          's': self.move_down,
                          'a': self.move_left,
@@ -123,6 +132,8 @@ class Game_2048():
     
             if act in valid_move:    
                 self.mat = move_func[act](self.mat)
+                after_state = deepcopy(self.mat)
+                self.episodes.append((before_state, after_state))
                 self.add_new_2()
             elif act=='q':
                 print('Bye~')
@@ -130,7 +141,14 @@ class Game_2048():
             else: 
                 print("Invalid Key Pressed")
             self.show_board()
+    
+
+def random_ai(mat):
+    game = Game_2048(len(mat[0]),len(mat))
+    valid_move = game.get_valid_move(mat)
+    return choice(valid_move)       
             
 if __name__ == '__main__': 
     Game = Game_2048(3,2)
     Game.gameloop()
+
