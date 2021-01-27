@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from random import randrange, choice
 from copy import deepcopy
+from collections import defaultdict
+import sys
+import os
+import time
+
 """
 ref: https://www.geeksforgeeks.org/2048-game-in-python/
 
@@ -8,7 +13,23 @@ ref: https://www.geeksforgeeks.org/2048-game-in-python/
 1. (觀念)https://junmo1215.github.io/machine-learning/2017/11/27/practice-TDLearning-in-2584-fibonacci-2nd.html
 2. (code)https://github.com/junmo1215/rl_games/blob/8809ae2a9eefb8e492e24658d28268c67f00281e/2584_C%2B%2B/agent.h
 """
-    
+
+class HiddenPrints():
+    """ ref: https://cloud.tencent.com/developer/ask/188486 """
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+        
+class Episode():
+    def __init__(self, before_state, after_state, reward):
+        self.before = before_state
+        self.after = after_state
+        self.reward = reward
+        
 class Game_2048():
     def __init__(self, width, height):
         self.width = width
@@ -18,6 +39,7 @@ class Game_2048():
     
     def start_game(self): 
         self.mat =[[0] * self.width for i in range(self.height)] 
+        self.episodes = [] #儲存遊戲記錄
         # printing controls for user 
         print("Commands are as follows : ") 
         print("'W' or 'w' : Move Up") 
@@ -103,7 +125,7 @@ class Game_2048():
             print(m)
         print('-'*10)
         
-    def gameloop(self, ai_agent=None):
+    def gameloop(self, ai_agent=None, show_info=True):
         """
         ai_agent(mat): ai做選擇的函數，input盤面mat，輸出要往上、下、左、右哪邊滑，輸入None時由人類玩家玩。
         """
@@ -133,7 +155,7 @@ class Game_2048():
             if act in valid_move:    
                 self.mat = move_func[act](self.mat)
                 after_state = deepcopy(self.mat)
-                self.episodes.append((before_state, after_state))
+                self.episodes.append(Episode(before_state, after_state,1))
                 self.add_new_2()
             elif act=='q':
                 print('Bye~')
@@ -141,14 +163,41 @@ class Game_2048():
             else: 
                 print("Invalid Key Pressed")
             self.show_board()
+        return max(max(row) for row in self.mat)
     
+    def play_many_game(self, game_num, ai_agent=None, hidden_print=True):
+        score_dict = defaultdict(int)
+        if hidden_print:
+            with HiddenPrints():
+                for i in range(game_num):
+                    max_tile = self.gameloop(ai_agent)
+                    score_dict[max_tile] += 1
+        else:
+            for i in range(game_num):
+                max_tile = self.gameloop(ai_agent)
+                score_dict[max_tile] += 1
+        statistic(score_dict)
+        
 
 def random_ai(mat):
     game = Game_2048(len(mat[0]),len(mat))
     valid_move = game.get_valid_move(mat)
-    return choice(valid_move)       
+    return choice(valid_move)  
+
+def statistic(score_dict):
+    """
+    對遊戲結束時達到的最高分的tile進行統計
+    """
+    total_game = sum(score_dict.values())
+    for key in sorted(score_dict):
+        print(key, f"{score_dict[key]/total_game*100:.2f}%")
+    print('-'*10)
             
 if __name__ == '__main__': 
-    Game = Game_2048(3,2)
-    Game.gameloop()
+    Game = Game_2048(4,4)
+    s = time.time()
+    Game.play_many_game(1000, random_ai)
+    print('執行時間', time.time()-s)
+
+    
 
