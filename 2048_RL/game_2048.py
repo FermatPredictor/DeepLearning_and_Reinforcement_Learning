@@ -31,6 +31,9 @@ class Episode():
         self.reward = reward
         
 class Game_2048():
+    """
+    盤面表示: 計算上，用i表示數值pow(2,i)
+    """
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -51,7 +54,7 @@ class Game_2048():
     
     def add_new_2(self): 
         # function to add a new 2 or 4 in grid at any random empty cell 
-        new_element = 4 if randrange(100) > 89 else 2
+        new_element = 2 if randrange(100) > 89 else 1
         i,j = choice([(i,j) for i in range(self.height) for j in range(self.width) if self.mat[i][j] == 0])
         self.mat[i][j] = new_element
     
@@ -82,7 +85,7 @@ class Game_2048():
             for j in range(len(mat[0])-1): 
                 # 合併兩個相同方塊
                 if(mat[i][j] == mat[i][j + 1] and mat[i][j] != 0): 
-                    mat[i][j] *= 2
+                    mat[i][j] += 1
                     mat[i][j + 1] = 0
         return mat
       
@@ -125,7 +128,7 @@ class Game_2048():
             print(m)
         print('-'*10)
         
-    def gameloop(self, ai_agent=None, show_info=True):
+    def __gameloop(self, ai_agent=None):
         """
         ai_agent(mat): ai做選擇的函數，input盤面mat，輸出要往上、下、左、右哪邊滑，輸入None時由人類玩家玩。
         """
@@ -165,6 +168,12 @@ class Game_2048():
             self.show_board()
         return max(max(row) for row in self.mat)
     
+    def gameloop(self, ai_agent=None, hidden_print=False):
+        if hidden_print:
+            with HiddenPrints():
+                return self.__gameloop(ai_agent)
+        return self.__gameloop(ai_agent)
+    
     def play_many_game(self, game_num, ai_agent=None, hidden_print=True):
         score_dict = defaultdict(int)
         if hidden_print:
@@ -190,7 +199,7 @@ def statistic(score_dict):
     """
     total_game = sum(score_dict.values())
     for key in sorted(score_dict):
-        print(key, f"{score_dict[key]/total_game*100:.2f}%")
+        print(2**key, f"{score_dict[key]/total_game*100:.2f}%")
     print('-'*10)
             
 if __name__ == '__main__': 
