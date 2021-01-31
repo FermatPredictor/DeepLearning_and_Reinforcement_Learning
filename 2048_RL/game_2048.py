@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from random import randrange, choice
-from copy import deepcopy
 from collections import defaultdict
 import sys
 import os
@@ -70,24 +69,43 @@ class Game_2048():
     def get_valid_move(self, mat):
         valid_moves = []
         for move in ['s','d','w','a']:
-            mat = self.turn_right(mat)
+            self.turn_right(mat)
             if self.can_move_left(mat):
                 valid_moves.append(move)
         return valid_moves
-        
-    def compress(self, mat): 
-        """ 只定義往左滑的功能，上、下、右滑用鏡射、旋轉解 """
-        return [sorted(row, key = lambda x: bool(x == 0)) for row in mat]
     
-    def merge(self, mat): 
-        # function to merge the cells in matrix after compressing 
-        for i in range(len(mat)): 
-            for j in range(len(mat[0])-1): 
-                # 合併兩個相同方塊
-                if(mat[i][j] == mat[i][j + 1] and mat[i][j] != 0): 
-                    mat[i][j] += 1
-                    mat[i][j + 1] = 0
-        return mat
+    def _merge(self, row):
+        """
+        只定義往左滑的功能，上、下、右滑用鏡射、旋轉解
+        [1, 0, 1, 2] should return [2, 2, 0, 0]
+        [0, 0, 1, 1] should return [2, 0, 0, 0]
+        [1, 1, 0, 0] should return [2, 0, 0, 0]
+        [1, 1, 1, 1, 1] should return [2, 2, 1, 0, 0]
+        [3, 4, 4, 3] should return [3, 5, 3, 0]
+        """
+        prev = None
+        store = [0]*len(row)
+        idx = 0
+    
+        for next_ in row:
+            if not next_:
+                continue
+            if not prev:
+                prev = next_
+            elif prev == next_:
+                store[idx] = prev + 1
+                idx += 1
+                prev = None
+            else:
+                store[idx] = prev
+                idx += 1
+                prev = next_
+        if prev:
+            store[idx] = prev
+        return store
+    
+    def merge(self, mat):
+        return [self._merge(row) for row in mat]
       
     def reverse(self, mat):
         return [row[::-1] for row in mat]
@@ -96,14 +114,12 @@ class Game_2048():
         return [list(row) for row in zip(*mat)]
     
     def turn_right(self, mat):
-        """ 矩陣右旋 """
-        return self.reverse(self.transpose(mat))
+        """ 矩陣右旋, inplace """
+        mat.reverse()
+        mat[:] = map(list, zip(*mat))
     
     def move_left(self, grid): 
-        new_grid = self.compress(grid) 
-        new_grid = self.merge(new_grid) 
-        new_grid = self.compress(new_grid)  # again compress after merging. 
-        return new_grid
+        return self.merge(grid) 
     
     def move_right(self, grid): 
         new_grid = self.reverse(grid) 
@@ -128,21 +144,20 @@ class Game_2048():
             print(m)
         print('-'*10)
         
+        
     def __gameloop(self, ai_agent=None):
         """
         ai_agent(mat): ai做選擇的函數，input盤面mat，輸出要往上、下、左、右哪邊滑，輸入None時由人類玩家玩。
         """
+        deepcopy_2d_list = lambda mat: [row[:] for row in mat]
         self.start_game()
         self.show_board()
         while True:
-            before_state = deepcopy(self.mat)
+            before_state = deepcopy_2d_list(self.mat)
             valid_move = self.get_valid_move(self.mat)
             print('目前合法棋步:', valid_move)
             if not valid_move:
                 print('GAME_OVER')
-                break
-            if any(e == 2048 for row in self.mat for e in row):
-                print('You won.')
                 break
             
             if callable(ai_agent):
@@ -157,7 +172,7 @@ class Game_2048():
     
             if act in valid_move:    
                 self.mat = move_func[act](self.mat)
-                after_state = deepcopy(self.mat)
+                after_state = deepcopy_2d_list(self.mat)
                 self.episodes.append(Episode(before_state, after_state,1))
                 self.add_new_2()
             elif act=='q':
@@ -201,12 +216,20 @@ def statistic(score_dict):
     for key in sorted(score_dict):
         print(2**key, f"{score_dict[key]/total_game*100:.2f}%")
     print('-'*10)
-            
+
+def time_analysis():
+    """
+    函數功能: 玩50場遊戲，分析遊戲本身邏輯計算是否可以再加速
+    """
+    import cProfile
+    cProfile.run('Game.play_many_game(50, random_ai)', sort="cumulative")
+    
 if __name__ == '__main__': 
     Game = Game_2048(4,4)
     s = time.time()
-    Game.play_many_game(1000, random_ai)
+    Game.play_many_game(100, random_ai)
     print('執行時間', time.time()-s)
+    #time_analysis()
 
     
 

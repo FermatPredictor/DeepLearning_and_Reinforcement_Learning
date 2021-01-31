@@ -84,11 +84,12 @@ def statistic(score_dict):
 if __name__ == '__main__':
     """
     The best record in 1000 games:
-    128 0.70%
-    256 2.30%
-    512 13.30%
-    1024 47.10%
-    2048 36.60%
+    128 0.20%
+    256 0.80%
+    512 4.10%
+    1024 28.10%
+    2048 66.20%
+    4096 0.60%
     
     lr = 0.01
     index_tuples = [(0,1,2,3),(4,5,6,7),(8,9,10,11),(12,13,14,15),
@@ -102,12 +103,13 @@ if __name__ == '__main__':
                     (0,4,8,12),(1,5,9,13),(2,6,10,14),(3,7,11,15)]
     MAX_INDEX = 16
     td = TD_weight_table(lr, index_tuples,MAX_INDEX)
+    td.load('./4x4_weights_2021-01-31_08_54_45.pickle')
     
     Game = Game_2048(4,4)
-    train_num = 20
+    train_num = 10
     game_num = 1000
     
-    for _ in range(train_num):
+    for idx in range(train_num):
         score_dict = defaultdict(int)
         s = time.time()
         path = f'./4x4_weights_{datetime.now().strftime("%Y-%m-%d_%H_%M_%S")}.pickle'
@@ -118,4 +120,4 @@ if __name__ == '__main__':
             td.close_episode(episode)
         td.save(path)
         statistic(score_dict)
-        print('執行時間', time.time()-s)
+        print(f'第{idx+1}次training, 執行時間', time.time()-s)
