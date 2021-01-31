@@ -4,6 +4,7 @@ from collections import defaultdict
 import sys
 import os
 import time
+import cProfile
 
 """
 ref: https://www.geeksforgeeks.org/2048-game-in-python/
@@ -221,10 +222,9 @@ def time_analysis():
     """
     函數功能: 玩50場遊戲，分析遊戲本身邏輯計算是否可以再加速
     """
-    import cProfile
     cProfile.run('Game.play_many_game(50, random_ai)', sort="cumulative")
     
-if __name__ == '__main__': 
+if __name__ == '__main__':
     Game = Game_2048(4,4)
     s = time.time()
     Game.play_many_game(100, random_ai)
